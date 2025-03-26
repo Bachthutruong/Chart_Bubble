@@ -42,7 +42,7 @@
       <div class="chat-footer">
         <textarea
           v-model="inputMessage"
-          @keydown.enter.exact.prevent="handleEnterKey"
+          @keydown.enter.exact="handleEnterKey"
           @keydown.shift.enter.stop
           @input="adjustTextareaHeight"
           placeholder="Nhập tin nhắn..."
@@ -100,8 +100,11 @@ export default {
         });
       }
     },
-    handleEnterKey() {
-      if (!this.isMobileDevice) {
+    handleEnterKey(event) {
+      if (this.isMobileDevice) {
+        return;
+      } else {
+        event.preventDefault();
         this.sendMessage();
       }
     },
