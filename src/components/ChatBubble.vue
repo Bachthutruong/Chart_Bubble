@@ -17,9 +17,13 @@
             v-for="(message, index) in messages"
             :key="index"
             class="message-card"
-            :class="message.type === 'user' ? 'user-message' : 'bot-message'"
+            :class="
+              message && message.type === 'user'
+                ? 'user-message'
+                : 'bot-message'
+            "
           >
-            <div class="card">
+            <div class="card" v-if="message">
               <div class="card-body">
                 <div class="card-body-user" v-if="message.type === 'user'">
                   {{ message.text }}
@@ -38,7 +42,7 @@
       <div class="chat-footer">
         <textarea
           v-model="inputMessage"
-          @keydown.enter.exact.prevent="sendMessage"
+          @keydown.enter.exact.prevent="handleEnterKey"
           @keydown.shift.enter.stop
           @input="adjustTextareaHeight"
           placeholder="Nhập tin nhắn..."
@@ -61,9 +65,20 @@ export default {
       isChatOpen: false,
       inputMessage: "",
       messages: [],
+      isMobileDevice: false,
     };
   },
+  mounted() {
+    this.isMobileDevice = window.innerWidth <= 768;
+    window.addEventListener("resize", this.checkDevice);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.checkDevice);
+  },
   methods: {
+    checkDevice() {
+      this.isMobileDevice = window.innerWidth <= 768;
+    },
     toggleChat() {
       this.isChatOpen = !this.isChatOpen;
       if (this.isChatOpen) {
@@ -83,6 +98,11 @@ export default {
           this.scrollToBottom();
           this.resetTextareaHeight();
         });
+      }
+    },
+    handleEnterKey() {
+      if (!this.isMobileDevice) {
+        this.sendMessage();
       }
     },
     scrollToBottom() {
@@ -244,7 +264,6 @@ export default {
   height: 36px;
   box-sizing: border-box;
 }
-
 
 .chat-footer button {
   margin-left: 10px;
